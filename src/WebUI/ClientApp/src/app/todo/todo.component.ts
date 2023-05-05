@@ -124,6 +124,10 @@ export class TodoComponent implements OnInit {
     this.deleteListModalRef = this.modalService.show(template);
   }
 
+  confirmDeleteListV2(template: TemplateRef<any>) {
+    this.deleteListModalRef = this.modalService.show(template);
+  }
+
   deleteListConfirmed(): void {
     this.listsClient.delete(this.selectedList.id).subscribe(
       () => {
