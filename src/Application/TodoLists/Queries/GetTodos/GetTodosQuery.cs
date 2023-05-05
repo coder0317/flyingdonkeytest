@@ -32,6 +32,7 @@ public class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
             Lists = await _context.TodoLists
                 .AsNoTracking()
                 .ProjectTo<TodoListDto>(_mapper.ConfigurationProvider)
+                .Where(t => t.IsSoftDeleted == false)
                 .OrderBy(t => t.Title)
                 .ToListAsync(cancellationToken)
         };
