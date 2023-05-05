@@ -12,6 +12,8 @@ public class TodoListConfiguration : IEntityTypeConfiguration<TodoList>
             .HasMaxLength(200)
             .IsRequired();
 
+        builder.Property(t => t.IsSoftDeleted).HasDefaultValue(false);
+
         builder
             .OwnsOne(b => b.Colour);
     }
