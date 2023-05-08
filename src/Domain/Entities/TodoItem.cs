@@ -29,5 +29,7 @@ public class TodoItem : BaseAuditableEntity
         }
     }
 
+    public IList<Tag> Tags { get; private set; } = new List<Tag>();
+
     public TodoList List { get; set; } = null!;
 }
