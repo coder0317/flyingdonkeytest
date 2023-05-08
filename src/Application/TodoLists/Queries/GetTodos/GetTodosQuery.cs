@@ -25,6 +25,7 @@ public class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
         var activeTodoList = _context.TodoLists
             .AsNoTracking()
             .Include(t => t.Items.Where(i => !i.IsSoftDeleted))
+            .ThenInclude(t => t.Tags)
             .Where(t => t.IsSoftDeleted == false)
             .OrderBy(t => t.Title)
             .ToList();

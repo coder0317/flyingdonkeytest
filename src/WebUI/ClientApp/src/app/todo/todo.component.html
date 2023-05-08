@@ -65,6 +65,25 @@
               </button>
             </div>
           </div>
+          <div class="d-flex">
+            <mat-chip-list #chipGrid>
+              <mat-chip *ngFor="let tag of item.tags">
+                {{tag.name}}
+                <button matChipRemove>
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip>
+            </mat-chip-list>
+          </div>
+          <div>
+            <input placeholder="Enter Tag"
+                   #tagInput
+                   [formControl]="tagCtrl"
+                   [matChipInputFor]="chipGrid"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   (matChipInputTokenEnd)="add($event, item.id)" />
+            <button mat-flat-button color="primary" (click)="saveTag()">Save</button>
+          </div>
         </li>
         <li class="list-group-item" (click)="addItem()">
           <button class="btn btn-default">Add Item...</button>

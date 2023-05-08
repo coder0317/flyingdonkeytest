@@ -4,6 +4,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -37,7 +40,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     ApiAuthorizationModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    ModalModule.forRoot()
+    ModalModule.forRoot(),
+    MatChipsModule,
+    MatIconModule,
+    MatButtonModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true }

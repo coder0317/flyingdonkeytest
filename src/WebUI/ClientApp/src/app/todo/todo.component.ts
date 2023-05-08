@@ -1,11 +1,13 @@
-import { Component, TemplateRef, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { Component, TemplateRef, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { FormBuilder, FormControl } from '@angular/forms';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MatChipInputEvent } from '@angular/material/chips';
 import {
   TodoListsClient, TodoItemsClient,
   TodoListDto, TodoItemDto, PriorityLevelDto,
   CreateTodoListCommand, UpdateTodoListCommand,
-  CreateTodoItemCommand, UpdateTodoItemDetailCommand
+  CreateTodoItemCommand, UpdateTodoItemDetailCommand, TagDto, TagsClient, AddTagCommand
 } from '../web-api-client';
 
 @Component({
@@ -35,10 +37,15 @@ export class TodoComponent implements OnInit {
     note: ['']
   });
 
+  @ViewChild('tagInput') tagInput: ElementRef<HTMLInputElement>;
+  separatorKeysCodes: number[] = [ENTER, COMMA]
+  tags: TagDto[] = []
+  tagCtrl = new FormControl('');
 
   constructor(
     private listsClient: TodoListsClient,
     private itemsClient: TodoItemsClient,
+    private tagsClient: TagsClient,
     private modalService: BsModalService,
     private fb: FormBuilder
   ) { }
@@ -265,4 +272,41 @@ export class TodoComponent implements OnInit {
     this.deleteCountDown = 0;
     this.deleting = false;
   }
+
+  add(event: MatChipInputEvent, itemid: number): void {
+    const value = (event.value || '').trim();
+
+    if (value) {
+      let tagInfo = <TagDto>{
+        itemId: itemid,
+        name: value
+      }
+      this.tags.push(tagInfo)
+    }
+
+    event.chipInput!.clear();
+
+    this.tagCtrl.setValue(null);
+  }
+
+  saveTag() {
+    let tags = <AddTagCommand>{
+      tags: this.tags
+    }
+    this.tagsClient.createTag(tags).subscribe()
+  }
+
+  remove(item: TagDto): void {
+    const index = this.tags.indexOf(item);
+
+    if (index >= 0) {
+      this.tags.splice(index, 1);
+    }
+  }
+
+  //selected(event: MatAutocompleteSelectedEvent): void {
+  //  this.tags.push(event.option.viewValue);
+  //  this.tagInput.nativeElement.value = '';
+  //  this.tagCtrl.setValue(null);
+  //}
 }
