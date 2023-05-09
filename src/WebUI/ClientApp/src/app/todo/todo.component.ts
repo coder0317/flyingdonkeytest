@@ -307,6 +307,7 @@ export class TodoComponent implements OnInit {
 
     if (index >= 0) {
       this.tags.splice(index, 1);
+      this.tagsClient.delete(item.id).subscribe()
     }
   }
 
