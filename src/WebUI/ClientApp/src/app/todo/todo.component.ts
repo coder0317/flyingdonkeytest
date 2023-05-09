@@ -316,8 +316,6 @@ export class TodoComponent implements OnInit {
   }
 
   deleteTag(tag: TagDto): void {
-    let index = this.tags.indexOf(tag)
-
     this.tagsClient.delete(tag.id)
       .subscribe(
         (result) => {
@@ -329,6 +327,7 @@ export class TodoComponent implements OnInit {
         (err) => console.log(err)
     )
 
+    let index = this.tags.indexOf(tag)
     this.tags.splice(index, 1);
   }
 
