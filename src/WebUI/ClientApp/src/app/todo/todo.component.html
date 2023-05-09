@@ -53,8 +53,8 @@
               <input id="{{ 'itemTitle' + i }}" *ngIf="item == selectedItem" type="text"
                 class="form-control item-input-control" [(ngModel)]="item.title" (keyup.enter)="updateItem(item, true)"
                 (blur)="updateItem(item)" autofocus="autofocus" />
-              <div class="todo-item-title" *ngIf="item != selectedItem" [ngClass]="{ 'done-todo': item.done }"
-                (click)="editItem(item, 'itemTitle' + i)" class="form-control item-input-control">
+              <div class="todo-item-title form-control item-input-control" *ngIf="item != selectedItem" [ngClass]="{ 'done-todo': item.done }"
+                (click)="editItem(item, 'itemTitle' + i)">
                 <span>{{ item.title }}</span>
               </div>
             </div>
@@ -70,7 +70,7 @@
               <mat-chip *ngFor="let tag of item.tags">
                 {{tag.name}}
                 <button matChipRemove>
-                  <mat-icon>cancel</mat-icon>
+                  <mat-icon>close</mat-icon>
                 </button>
               </mat-chip>
             </mat-chip-list>
