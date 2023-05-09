@@ -83,7 +83,7 @@
                    [matChipInputFor]="tagList"
                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                    (matChipInputTokenEnd)="add($event, item.id)" />
-            <button mat-flat-button color="primary" (click)="saveTag()">Save</button>
+            <button mat-flat-button color="primary" (click)="confirmSaveTag(saveTagModalTemplate)">Save</button>
           </div>
         </li>
         <li class="list-group-item" (click)="addItem()">
@@ -231,6 +231,27 @@
     <div class="float-end">
       <button type="button" class="btn btn-default" (click)="deleteTagModalRef.hide()">Cancel</button>
       <button type="button" class="btn btn-danger" (click)="deleteTag()">Delete</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #saveTagModalTemplate>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Save Tag(s)?</h4>
+    <button type="button" class="close btn-close pull-right" aria-label="Close" (click)="saveTagModalRef.hide()">
+      <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>The following tags will be saved.</p>
+    <ul *ngFor="let tags of addedTags">
+      <li>{{tags.name}}</li>
+    </ul>
+  </div>
+  <div class="modal-footer clearfix">
+    <div class="float-end">
+      <button type="button" class="btn btn-default" (click)="saveTagModalRef.hide()">Cancel</button>
+      <button type="button" class="btn btn-primary" (click)="saveTag()">Save</button>
     </div>
   </div>
 </ng-template>

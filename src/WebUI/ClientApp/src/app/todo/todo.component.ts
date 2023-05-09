@@ -31,6 +31,7 @@ export class TodoComponent implements OnInit {
   deleteListModalRef: BsModalRef;
   itemDetailsModalRef: BsModalRef;
   deleteTagModalRef: BsModalRef;
+  saveTagModalRef: BsModalRef;
   itemDetailsFormGroup = this.fb.group({
     id: [null],
     listId: [null],
@@ -294,6 +295,13 @@ export class TodoComponent implements OnInit {
     this.tagCtrl.setValue(null);
   }
 
+  confirmSaveTag(template: TemplateRef<any>) {
+    if (this.addedTags.length == 0) { }
+    else {
+      this.saveTagModalRef = this.modalService.show(template)
+    }
+  }
+
   saveTag() {
     if (this.addedTags.length >= 1) {
       let tags = <AddTagCommand>{
@@ -301,7 +309,8 @@ export class TodoComponent implements OnInit {
       }
       this.tagsClient.createTag(tags).subscribe()
       this.addedTags = []
-    } else { }
+      this.saveTagModalRef.hide()
+    }
   }
 
   deleteTag(): void {
