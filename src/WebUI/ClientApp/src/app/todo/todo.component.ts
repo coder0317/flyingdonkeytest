@@ -1,12 +1,19 @@
-import { Component, TemplateRef, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { Component, TemplateRef, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { FormBuilder, FormControl } from '@angular/forms';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MatChipInputEvent } from '@angular/material/chips';
 import {
   TodoListsClient, TodoItemsClient,
   TodoListDto, TodoItemDto, PriorityLevelDto,
   CreateTodoListCommand, UpdateTodoListCommand,
-  CreateTodoItemCommand, UpdateTodoItemDetailCommand
+  CreateTodoItemCommand, UpdateTodoItemDetailCommand, TagDto, TagsClient, AddTagCommand
 } from '../web-api-client';
+import {
+  MatSnackBar,
+  MatSnackBarHorizontalPosition,
+  MatSnackBarVerticalPosition
+} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-todo-component',
@@ -28,6 +35,7 @@ export class TodoComponent implements OnInit {
   listOptionsModalRef: BsModalRef;
   deleteListModalRef: BsModalRef;
   itemDetailsModalRef: BsModalRef;
+  saveTagModalRef: BsModalRef;
   itemDetailsFormGroup = this.fb.group({
     id: [null],
     listId: [null],
@@ -35,18 +43,29 @@ export class TodoComponent implements OnInit {
     note: ['']
   });
 
+  separatorKeysCodes: number[] = [ENTER, COMMA]
+  tags: TagDto[] = []
+  addedTags: TagDto[] = []
+  tagCtrl = new FormControl('');
+
+  horizontalPosition: MatSnackBarHorizontalPosition = 'right';
+  verticalPosition: MatSnackBarVerticalPosition = 'top';
 
   constructor(
     private listsClient: TodoListsClient,
     private itemsClient: TodoItemsClient,
+    private tagsClient: TagsClient,
     private modalService: BsModalService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private _snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
     this.listsClient.get().subscribe(
       result => {
         this.lists = result.lists;
+        this.loadTags()
+
         this.priorityLevels = result.priorityLevels;
         if (this.lists.length) {
           this.selectedList = this.lists[0];
@@ -121,6 +140,10 @@ export class TodoComponent implements OnInit {
 
   confirmDeleteList(template: TemplateRef<any>) {
     this.listOptionsModalRef.hide();
+    this.deleteListModalRef = this.modalService.show(template);
+  }
+
+  confirmDeleteListV2(template: TemplateRef<any>) {
     this.deleteListModalRef = this.modalService.show(template);
   }
 
@@ -260,5 +283,66 @@ export class TodoComponent implements OnInit {
     clearInterval(this.deleteCountDownInterval);
     this.deleteCountDown = 0;
     this.deleting = false;
+  }
+
+  add(event: MatChipInputEvent, itemid: number): void {
+    const value = (event.value || '').trim();
+
+    if (value) {
+      let tagInfo = <TagDto>{
+        itemId: itemid,
+        name: value
+      }
+      this.tags.push(tagInfo)
+      this.saveTag(tagInfo)
+    }
+
+    event.chipInput!.clear();
+
+    this.tagCtrl.setValue(null);
+  }
+
+  saveTag(tag: TagDto) {
+    this.tagsClient.createTag(tag)
+      .subscribe(
+        (result) => {
+          this._snackBar.open(`Added Tag ${tag.name}`, 'Close', {
+            horizontalPosition: this.horizontalPosition,
+            verticalPosition: this.verticalPosition,
+          })
+        },
+        (err) => console.log(err)
+      )
+  }
+
+  deleteTag(tag: TagDto): void {
+    this.tagsClient.delete(tag.id)
+      .subscribe(
+        (result) => {
+          this._snackBar.open(`Deleted Tag ${tag.name}`, 'Close', {
+            horizontalPosition: this.horizontalPosition,
+            verticalPosition: this.verticalPosition,
+          })
+        },
+        (err) => console.log(err)
+    )
+
+    let index = this.tags.indexOf(tag)
+    this.tags.splice(index, 1);
+  }
+
+  loadTags() {
+    let self = this
+    this.lists.forEach((todolist) => {
+      todolist.items.forEach((todoitem) => {
+        todoitem.tags.forEach((tag) => {
+          self.tags.push(tag)
+        })
+      })
+    })
+  }
+
+  itemTags(itemid: number) {
+    return this.tags.filter(t => t.itemId == itemid)
   }
 }

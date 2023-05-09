@@ -22,6 +22,16 @@ public class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
 
     public async Task<TodosVm> Handle(GetTodosQuery request, CancellationToken cancellationToken)
     {
+        var activeTodoList = _context.TodoLists
+            .AsNoTracking()
+            .Include(t => t.Items.Where(i => !i.IsSoftDeleted))
+            .ThenInclude(t => t.Tags)
+            .Where(t => t.IsSoftDeleted == false)
+            .OrderBy(t => t.Title)
+            .ToList();
+
+        var mappedTodolist = _mapper.Map<IList<TodoListDto>>(activeTodoList);
+
         return new TodosVm
         {
             PriorityLevels = Enum.GetValues(typeof(PriorityLevel))
@@ -29,11 +39,7 @@ public class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
                 .Select(p => new PriorityLevelDto { Value = (int)p, Name = p.ToString() })
                 .ToList(),
 
-            Lists = await _context.TodoLists
-                .AsNoTracking()
-                .ProjectTo<TodoListDto>(_mapper.ConfigurationProvider)
-                .OrderBy(t => t.Title)
-                .ToListAsync(cancellationToken)
+            Lists = mappedTodolist
         };
     }
 }

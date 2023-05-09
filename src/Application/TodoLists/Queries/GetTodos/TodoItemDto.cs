@@ -18,6 +18,10 @@ public class TodoItemDto : IMapFrom<TodoItem>
 
     public string? Note { get; set; }
 
+    public bool IsSoftDeleted { get; set; }
+
+    public IList<TagDto> Tags { get; private set; } = new List<TagDto>();
+
     public void Mapping(Profile profile)
     {
         profile.CreateMap<TodoItem, TodoItemDto>()

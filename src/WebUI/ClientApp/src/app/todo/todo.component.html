@@ -23,6 +23,12 @@
               {{ list.title }}
             </div>
             <div class="float-end text-right">
+              <button *ngIf="list.id != 0" class="btn btn-default btn-xs" role="button"
+                      (click)="confirmDeleteListV2(deleteListModalTemplate)">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+            </div>
+            <div class="float-end text-right">
               <span class="badge badge-light">{{ remainingItems(list) }}</span>
             </div>
           </div>
@@ -33,7 +39,7 @@
       <div class="clearfix">
         <h2 class="float-start">{{ selectedList.title }}</h2>
         <button id="listOptions" class="btn btn-default float-end" title="List Options..."
-          (click)="showListOptionsModal(listOptionsModalTemplate)">
+                (click)="showListOptionsModal(listOptionsModalTemplate)">
           <i class="bi bi-three-dots-vertical"></i>
         </button>
       </div>
@@ -45,19 +51,38 @@
             </div>
             <div class="flex-fill">
               <input id="{{ 'itemTitle' + i }}" *ngIf="item == selectedItem" type="text"
-                class="form-control item-input-control" [(ngModel)]="item.title" (keyup.enter)="updateItem(item, true)"
-                (blur)="updateItem(item)" autofocus="autofocus" />
-              <div class="todo-item-title" *ngIf="item != selectedItem" [ngClass]="{ 'done-todo': item.done }"
-                (click)="editItem(item, 'itemTitle' + i)" class="form-control item-input-control">
+                     class="form-control item-input-control" [(ngModel)]="item.title" (keyup.enter)="updateItem(item, true)"
+                     (blur)="updateItem(item)" autofocus="autofocus" />
+              <div class="todo-item-title form-control item-input-control" *ngIf="item != selectedItem" [ngClass]="{ 'done-todo': item.done }"
+                   (click)="editItem(item, 'itemTitle' + i)">
                 <span>{{ item.title }}</span>
               </div>
             </div>
             <div class="todo-item-commands">
               <button *ngIf="item.id != 0" (click)="showItemDetailsModal(itemDetailsModalTemplate, item)"
-                class="btn btn-default btn-xs" role="button">
+                      class="btn btn-default btn-xs" role="button">
                 <i class="bi bi-three-dots-vertical"></i>
               </button>
             </div>
+          </div>
+          <div class="d-flex">
+            <mat-chip-list #tagList>
+              <mat-chip *ngFor="let tag of itemTags(item.id)"
+                        (removed)="deleteTag(tag)">
+                {{tag.name}}
+                <button matChipRemove>
+                  <mat-icon>close</mat-icon>
+                </button>
+              </mat-chip>
+            </mat-chip-list>
+          </div>
+          <div>
+            <input placeholder="Enter Tag"
+                   #tagInput
+                   [formControl]="tagCtrl"
+                   [matChipInputFor]="tagList"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   (matChipInputTokenEnd)="add($event, item.id)" />
           </div>
         </li>
         <li class="list-group-item" (click)="addItem()">

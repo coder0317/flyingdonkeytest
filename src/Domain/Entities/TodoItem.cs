@@ -12,6 +12,8 @@ public class TodoItem : BaseAuditableEntity
 
     public DateTime? Reminder { get; set; }
 
+    public bool IsSoftDeleted { get; set; }
+
     private bool _done;
     public bool Done
     {
@@ -26,6 +28,8 @@ public class TodoItem : BaseAuditableEntity
             _done = value;
         }
     }
+
+    public IList<Tag> Tags { get; private set; } = new List<Tag>();
 
     public TodoList List { get; set; } = null!;
 }
