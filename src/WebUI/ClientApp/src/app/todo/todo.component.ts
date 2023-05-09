@@ -9,6 +9,11 @@ import {
   CreateTodoListCommand, UpdateTodoListCommand,
   CreateTodoItemCommand, UpdateTodoItemDetailCommand, TagDto, TagsClient, AddTagCommand
 } from '../web-api-client';
+import {
+  MatSnackBar,
+  MatSnackBarHorizontalPosition,
+  MatSnackBarVerticalPosition
+} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-todo-component',
@@ -30,7 +35,6 @@ export class TodoComponent implements OnInit {
   listOptionsModalRef: BsModalRef;
   deleteListModalRef: BsModalRef;
   itemDetailsModalRef: BsModalRef;
-  deleteTagModalRef: BsModalRef;
   saveTagModalRef: BsModalRef;
   itemDetailsFormGroup = this.fb.group({
     id: [null],
@@ -42,15 +46,18 @@ export class TodoComponent implements OnInit {
   separatorKeysCodes: number[] = [ENTER, COMMA]
   tags: TagDto[] = []
   addedTags: TagDto[] = []
-  deletedTag: TagDto
   tagCtrl = new FormControl('');
+
+  horizontalPosition: MatSnackBarHorizontalPosition = 'right';
+  verticalPosition: MatSnackBarVerticalPosition = 'top';
 
   constructor(
     private listsClient: TodoListsClient,
     private itemsClient: TodoItemsClient,
     private tagsClient: TagsClient,
     private modalService: BsModalService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private _snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -287,7 +294,7 @@ export class TodoComponent implements OnInit {
         name: value
       }
       this.tags.push(tagInfo)
-      this.addedTags.push(tagInfo)
+      this.saveTag(tagInfo)
     }
 
     event.chipInput!.clear();
@@ -302,26 +309,33 @@ export class TodoComponent implements OnInit {
     }
   }
 
-  saveTag() {
-    if (this.addedTags.length >= 1) {
-      let tags = <AddTagCommand>{
-        tags: this.addedTags
-      }
-      this.tagsClient.createTag(tags).subscribe()
-      this.addedTags = []
-      this.saveTagModalRef.hide()
-    }
+  saveTag(tag: TagDto) {
+    this.tagsClient.createTag(tag)
+      .subscribe(
+        (result) => {
+          this._snackBar.open(`Added Tag ${tag.name}`, 'Close', {
+            horizontalPosition: this.horizontalPosition,
+            verticalPosition: this.verticalPosition,
+          })
+        },
+        (err) => console.log(err)
+      )
   }
 
-  deleteTag(): void {
-    let delTag = this.deletedTag
-    const index = this.tags.indexOf(delTag);
+  deleteTag(tag: TagDto): void {
+    const index = this.tags.indexOf(tag);
 
-    if (index >= 0) {
-      this.tags.splice(index, 1);
-      this.tagsClient.delete(delTag.id).subscribe()
-      this.deleteTagModalRef.hide()
-    }
+    this.tags.splice(index, 1);
+    this.tagsClient.delete(tag.id)
+      .subscribe(
+        (result) => {
+          this._snackBar.open(`Deleted Tag ${tag.name}`, 'Close', {
+            horizontalPosition: this.horizontalPosition,
+            verticalPosition: this.verticalPosition,
+          })
+        },
+        (err) => console.log(err)
+      )
   }
 
   loadTags() {
@@ -337,10 +351,5 @@ export class TodoComponent implements OnInit {
 
   itemTags(itemid: number) {
     return this.tags.filter(t => t.itemId == itemid)
-  }
-
-  confirmDeleteTag(tag: TagDto, template: TemplateRef<any>) {
-    this.deletedTag = tag
-    this.deleteTagModalRef = this.modalService.show(template)
   }
 }

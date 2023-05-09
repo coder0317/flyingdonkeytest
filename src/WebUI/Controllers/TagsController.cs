@@ -8,7 +8,7 @@ namespace Todo_App.WebUI.Controllers;
 public class TagsController : ApiControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult<List<TagDto>>> CreateTag(AddTagCommand command)
+    public async Task<ActionResult<int>> CreateTag(AddTagCommand command)
     {
         return await Mediator.Send(command);
     }

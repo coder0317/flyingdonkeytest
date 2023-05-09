@@ -16,7 +16,7 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 export interface ITagsClient {
-    createTag(command: AddTagCommand): Observable<TagDto[]>;
+    createTag(command: AddTagCommand): Observable<number>;
     delete(id: number): Observable<FileResponse>;
 }
 
@@ -33,7 +33,7 @@ export class TagsClient implements ITagsClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    createTag(command: AddTagCommand): Observable<TagDto[]> {
+    createTag(command: AddTagCommand): Observable<number> {
         let url_ = this.baseUrl + "/api/Tags";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -56,14 +56,14 @@ export class TagsClient implements ITagsClient {
                 try {
                     return this.processCreateTag(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<TagDto[]>;
+                    return _observableThrow(e) as any as Observable<number>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<TagDto[]>;
+                return _observableThrow(response_) as any as Observable<number>;
         }));
     }
 
-    protected processCreateTag(response: HttpResponseBase): Observable<TagDto[]> {
+    protected processCreateTag(response: HttpResponseBase): Observable<number> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -74,14 +74,8 @@ export class TagsClient implements ITagsClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(TagDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -780,52 +774,9 @@ export class WeatherForecastClient implements IWeatherForecastClient {
     }
 }
 
-export class TagDto implements ITagDto {
-    id?: number;
-    itemId?: number;
-    name?: string;
-
-    constructor(data?: ITagDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.itemId = _data["itemId"];
-            this.name = _data["name"];
-        }
-    }
-
-    static fromJS(data: any): TagDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TagDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["itemId"] = this.itemId;
-        data["name"] = this.name;
-        return data;
-    }
-}
-
-export interface ITagDto {
-    id?: number;
-    itemId?: number;
-    name?: string;
-}
-
 export class AddTagCommand implements IAddTagCommand {
-    tags?: TagDto[];
+    itemId?: number;
+    name?: string;
 
     constructor(data?: IAddTagCommand) {
         if (data) {
@@ -838,11 +789,8 @@ export class AddTagCommand implements IAddTagCommand {
 
     init(_data?: any) {
         if (_data) {
-            if (Array.isArray(_data["tags"])) {
-                this.tags = [] as any;
-                for (let item of _data["tags"])
-                    this.tags!.push(TagDto.fromJS(item));
-            }
+            this.itemId = _data["itemId"];
+            this.name = _data["name"];
         }
     }
 
@@ -855,17 +803,15 @@ export class AddTagCommand implements IAddTagCommand {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.tags)) {
-            data["tags"] = [];
-            for (let item of this.tags)
-                data["tags"].push(item.toJSON());
-        }
+        data["itemId"] = this.itemId;
+        data["name"] = this.name;
         return data;
     }
 }
 
 export interface IAddTagCommand {
-    tags?: TagDto[];
+    itemId?: number;
+    name?: string;
 }
 
 export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItemBriefDto {
@@ -1345,6 +1291,50 @@ export interface ITodoItemDto {
     note?: string | undefined;
     isSoftDeleted?: boolean;
     tags?: TagDto[];
+}
+
+export class TagDto implements ITagDto {
+    id?: number;
+    itemId?: number;
+    name?: string;
+
+    constructor(data?: ITagDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.itemId = _data["itemId"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): TagDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TagDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["itemId"] = this.itemId;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ITagDto {
+    id?: number;
+    itemId?: number;
+    name?: string;
 }
 
 export class CreateTodoListCommand implements ICreateTodoListCommand {

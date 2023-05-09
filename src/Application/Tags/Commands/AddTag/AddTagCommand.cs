@@ -6,12 +6,13 @@ using Todo_App.Domain.Entities;
 
 namespace Todo_App.Application.Tags.Commands.AddTag;
 
-public class AddTagCommand : IRequest<List<TagDto>>
+public class AddTagCommand : IRequest<int>
 {
-    public List<TagDto> Tags { get; set; }
+    public int ItemId { get; set; }
+    public string Name { get; set; }
 }
 
-public class AddTagCommandHandler : IRequestHandler<AddTagCommand, List<TagDto>>
+public class AddTagCommandHandler : IRequestHandler<AddTagCommand, int>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -22,22 +23,17 @@ public class AddTagCommandHandler : IRequestHandler<AddTagCommand, List<TagDto>>
         _mapper = mapper;
     }
 
-    public async Task<List<TagDto>> Handle(AddTagCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(AddTagCommand request, CancellationToken cancellationToken)
     {
-        List<Tag> tags = new();
-
-        if (request.Tags.Count >= 1)
+        var tagInfo = new Tag
         {
-            request.Tags.ForEach((tag) => tags.Add(new Tag
-            {
-                ItemId = tag.ItemId,
-                Name = tag.Name
-            }));
-        }
+            ItemId = request.ItemId,
+            Name = request.Name
+        };
 
-        await _context.Tags.AddRangeAsync(tags);
+        await _context.Tags.AddAsync(tagInfo);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return request.Tags;
+        return tagInfo.Id;
     }
 }
