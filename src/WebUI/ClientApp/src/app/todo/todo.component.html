@@ -23,6 +23,12 @@
               {{ list.title }}
             </div>
             <div class="float-end text-right">
+              <button *ngIf="list.id != 0" class="btn btn-default btn-xs" role="button"
+                      (click)="confirmDeleteListV2(deleteListModalTemplate)">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+            </div>
+            <div class="float-end text-right">
               <span class="badge badge-light">{{ remainingItems(list) }}</span>
             </div>
           </div>
