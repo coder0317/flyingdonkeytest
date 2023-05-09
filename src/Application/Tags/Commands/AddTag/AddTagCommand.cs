@@ -28,16 +28,14 @@ public class AddTagCommandHandler : IRequestHandler<AddTagCommand, List<TagDto>>
 
         if (request.Tags.Count >= 1)
         {
-            request.Tags.ForEach((tag) => tags.Add(new Tag 
+            request.Tags.ForEach((tag) => tags.Add(new Tag
             {
                 ItemId = tag.ItemId,
                 Name = tag.Name
             }));
         }
 
-        var mappedTags = _mapper.Map<List<Tag>>(tags);
-
-        await _context.Tags.AddRangeAsync(mappedTags);
+        await _context.Tags.AddRangeAsync(tags);
         await _context.SaveChangesAsync(cancellationToken);
 
         return request.Tags;
