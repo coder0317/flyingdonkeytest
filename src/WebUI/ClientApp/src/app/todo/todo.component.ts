@@ -302,13 +302,6 @@ export class TodoComponent implements OnInit {
     this.tagCtrl.setValue(null);
   }
 
-  confirmSaveTag(template: TemplateRef<any>) {
-    if (this.addedTags.length == 0) { }
-    else {
-      this.saveTagModalRef = this.modalService.show(template)
-    }
-  }
-
   saveTag(tag: TagDto) {
     this.tagsClient.createTag(tag)
       .subscribe(
@@ -323,9 +316,8 @@ export class TodoComponent implements OnInit {
   }
 
   deleteTag(tag: TagDto): void {
-    const index = this.tags.indexOf(tag);
+    let index = this.tags.indexOf(tag)
 
-    this.tags.splice(index, 1);
     this.tagsClient.delete(tag.id)
       .subscribe(
         (result) => {
@@ -335,7 +327,9 @@ export class TodoComponent implements OnInit {
           })
         },
         (err) => console.log(err)
-      )
+    )
+
+    this.tags.splice(index, 1);
   }
 
   loadTags() {
