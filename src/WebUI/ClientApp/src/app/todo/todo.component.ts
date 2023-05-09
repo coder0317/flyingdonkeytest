@@ -37,7 +37,6 @@ export class TodoComponent implements OnInit {
     note: ['']
   });
 
-  @ViewChild('tagInput') tagInput: ElementRef<HTMLInputElement>;
   separatorKeysCodes: number[] = [ENTER, COMMA]
   tags: TagDto[] = []
   tagCtrl = new FormControl('');
@@ -54,6 +53,8 @@ export class TodoComponent implements OnInit {
     this.listsClient.get().subscribe(
       result => {
         this.lists = result.lists;
+        this.loadTags()
+
         this.priorityLevels = result.priorityLevels;
         if (this.lists.length) {
           this.selectedList = this.lists[0];
@@ -61,6 +62,21 @@ export class TodoComponent implements OnInit {
       },
       error => console.error(error)
     );
+  }
+
+  loadTags() {
+    let self = this
+    this.lists.forEach((todolist) => {
+      todolist.items.forEach((todoitem) => {
+        todoitem.tags.forEach((tag) => {
+          self.tags.push(tag)
+        })
+      })
+    })
+  }
+
+  itemTags(itemid: number) {
+    return this.tags.filter(t => t.itemId == itemid)
   }
 
   // Lists
@@ -303,10 +319,4 @@ export class TodoComponent implements OnInit {
       this.tags.splice(index, 1);
     }
   }
-
-  //selected(event: MatAutocompleteSelectedEvent): void {
-  //  this.tags.push(event.option.viewValue);
-  //  this.tagInput.nativeElement.value = '';
-  //  this.tagCtrl.setValue(null);
-  //}
 }

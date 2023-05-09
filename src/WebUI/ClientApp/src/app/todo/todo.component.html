@@ -67,7 +67,7 @@
           </div>
           <div class="d-flex">
             <mat-chip-list #chipGrid>
-              <mat-chip *ngFor="let tag of item.tags">
+              <mat-chip *ngFor="let tag of itemTags(item.id)">
                 {{tag.name}}
                 <button matChipRemove>
                   <mat-icon>close</mat-icon>
