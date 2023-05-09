@@ -30,6 +30,7 @@ export class TodoComponent implements OnInit {
   listOptionsModalRef: BsModalRef;
   deleteListModalRef: BsModalRef;
   itemDetailsModalRef: BsModalRef;
+  deleteTagModalRef: BsModalRef;
   itemDetailsFormGroup = this.fb.group({
     id: [null],
     listId: [null],
@@ -39,7 +40,8 @@ export class TodoComponent implements OnInit {
 
   separatorKeysCodes: number[] = [ENTER, COMMA]
   tags: TagDto[] = []
-  addedTags: TagDto[] =[]
+  addedTags: TagDto[] = []
+  deletedTag: TagDto
   tagCtrl = new FormControl('');
 
   constructor(
@@ -302,12 +304,14 @@ export class TodoComponent implements OnInit {
     } else { }
   }
 
-  remove(item: TagDto): void {
-    const index = this.tags.indexOf(item);
+  deleteTag(): void {
+    let delTag = this.deletedTag
+    const index = this.tags.indexOf(delTag);
 
     if (index >= 0) {
       this.tags.splice(index, 1);
-      this.tagsClient.delete(item.id).subscribe()
+      this.tagsClient.delete(delTag.id).subscribe()
+      this.deleteTagModalRef.hide()
     }
   }
 
@@ -324,5 +328,10 @@ export class TodoComponent implements OnInit {
 
   itemTags(itemid: number) {
     return this.tags.filter(t => t.itemId == itemid)
+  }
+
+  confirmDeleteTag(tag: TagDto, template: TemplateRef<any>) {
+    this.deletedTag = tag
+    this.deleteTagModalRef = this.modalService.show(template)
   }
 }

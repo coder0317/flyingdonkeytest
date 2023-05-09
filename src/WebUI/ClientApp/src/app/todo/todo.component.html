@@ -68,7 +68,7 @@
           <div class="d-flex">
             <mat-chip-list #tagList>
               <mat-chip *ngFor="let tag of itemTags(item.id)"
-                        (removed)="remove(tag)">
+                        (removed)="confirmDeleteTag(tag, deleteTagModalTemplate)">
                 {{tag.name}}
                 <button matChipRemove>
                   <mat-icon>close</mat-icon>
@@ -216,6 +216,21 @@
     <div class="float-end">
       <button class="btn btn-default" (click)="newListCancelled()">Cancel</button>
       <button class="btn btn-primary" (click)="addList()">Create</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #deleteTagModalTemplate>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Delete Tag "{{ deletedTag?.name }}"?</h4>
+    <button type="button" class="close btn-close pull-right" aria-label="Close" (click)="deleteTagModalRef.hide()">
+      <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+  </div>
+  <div class="modal-footer clearfix">
+    <div class="float-end">
+      <button type="button" class="btn btn-default" (click)="deleteTagModalRef.hide()">Cancel</button>
+      <button type="button" class="btn btn-danger" (click)="deleteTag()">Delete</button>
     </div>
   </div>
 </ng-template>
