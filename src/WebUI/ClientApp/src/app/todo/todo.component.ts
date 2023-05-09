@@ -39,6 +39,7 @@ export class TodoComponent implements OnInit {
 
   separatorKeysCodes: number[] = [ENTER, COMMA]
   tags: TagDto[] = []
+  addedTags: TagDto[] =[]
   tagCtrl = new FormControl('');
 
   constructor(
@@ -62,21 +63,6 @@ export class TodoComponent implements OnInit {
       },
       error => console.error(error)
     );
-  }
-
-  loadTags() {
-    let self = this
-    this.lists.forEach((todolist) => {
-      todolist.items.forEach((todoitem) => {
-        todoitem.tags.forEach((tag) => {
-          self.tags.push(tag)
-        })
-      })
-    })
-  }
-
-  itemTags(itemid: number) {
-    return this.tags.filter(t => t.itemId == itemid)
   }
 
   // Lists
@@ -298,6 +284,7 @@ export class TodoComponent implements OnInit {
         name: value
       }
       this.tags.push(tagInfo)
+      this.addedTags.push(tagInfo)
     }
 
     event.chipInput!.clear();
@@ -306,10 +293,13 @@ export class TodoComponent implements OnInit {
   }
 
   saveTag() {
-    let tags = <AddTagCommand>{
-      tags: this.tags
-    }
-    this.tagsClient.createTag(tags).subscribe()
+    if (this.addedTags.length >= 1) {
+      let tags = <AddTagCommand>{
+        tags: this.addedTags
+      }
+      this.tagsClient.createTag(tags).subscribe()
+      this.addedTags = []
+    } else { }
   }
 
   remove(item: TagDto): void {
@@ -318,5 +308,20 @@ export class TodoComponent implements OnInit {
     if (index >= 0) {
       this.tags.splice(index, 1);
     }
+  }
+
+  loadTags() {
+    let self = this
+    this.lists.forEach((todolist) => {
+      todolist.items.forEach((todoitem) => {
+        todoitem.tags.forEach((tag) => {
+          self.tags.push(tag)
+        })
+      })
+    })
+  }
+
+  itemTags(itemid: number) {
+    return this.tags.filter(t => t.itemId == itemid)
   }
 }
