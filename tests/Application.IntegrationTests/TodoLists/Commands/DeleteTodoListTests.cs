@@ -26,6 +26,7 @@ public class DeleteTodoListTests : BaseTestFixture
 
         var list = await FindAsync<TodoList>(listId);
 
+        list.Should().NotBeNull();
         list.IsSoftDeleted.Should().BeTrue();
     }
 }

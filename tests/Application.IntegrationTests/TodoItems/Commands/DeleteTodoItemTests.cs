@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+using FluentAssertions;
 using NUnit.Framework;
 using Todo_App.Application.Common.Exceptions;
 using Todo_App.Application.TodoItems.Commands.CreateTodoItem;
@@ -12,33 +13,25 @@ using static Testing;
 
 public class DeleteTodoItemTests : BaseTestFixture
 {
-    [Test]
-    public async Task ShouldRequireValidTodoItemId()
+    [TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.TodoIemIdsPassingData))]
+    //[TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.TodoItemIdsFailingData))]
+    public async Task ShouldRequireValidTodoItemId(int id)
     {
-        var command = new DeleteTodoItemCommand(99);
+        var command = new DeleteTodoItemCommand(id);
 
         await FluentActions.Invoking(() =>
-            SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+            SendAsync(command)).Should().ThrowAsync<ValidationException>();
     }
 
-    [Test]
-    public async Task ShouldDeleteTodoItem()
+    [TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.TodoIemIdsPassingData))]
+    //[TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.TodoItemIdsFailingData))]
+    public async Task ShouldSoftDeleteTodoItem(int id)
     {
-        var listId = await SendAsync(new CreateTodoListCommand
-        {
-            Title = "New List"
-        });
-
-        var itemId = await SendAsync(new CreateTodoItemCommand
-        {
-            ListId = listId,
-            Title = "New Item"
-        });
-
-        await SendAsync(new DeleteTodoItemCommand(itemId));
+        var itemId = await SendAsync(new DeleteTodoItemCommand(id));
 
         var item = await FindAsync<TodoItem>(itemId);
 
-        item.Should().BeNull();
+        item.Should().NotBeNull();
+        item.IsSoftDeleted.Should().BeTrue();
     }
 }
