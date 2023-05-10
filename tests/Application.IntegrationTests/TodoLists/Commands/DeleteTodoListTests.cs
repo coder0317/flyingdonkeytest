@@ -20,14 +20,12 @@ public class DeleteTodoListTests : BaseTestFixture
 
     [TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.TodoListIdsPassingData))]
     //[TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.TodoListIdsFailingData))]
-    public async Task ShouldDeleteTodoList(int id)
+    public async Task ShouldSoftDeleteTodoList(int id)
     {
         var listId = await SendAsync(new DeleteTodoListCommand(id));
 
-        await SendAsync(new DeleteTodoListCommand(listId));
-
         var list = await FindAsync<TodoList>(listId);
 
-        list.Should().BeNull();
+        list.IsSoftDeleted.Should().BeTrue();
     }
 }
