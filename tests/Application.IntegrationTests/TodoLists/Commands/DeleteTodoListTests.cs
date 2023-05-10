@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using Todo_App.Application.Common.Exceptions;
-using Todo_App.Application.TodoLists.Commands.CreateTodoList;
 using Todo_App.Application.TodoLists.Commands.DeleteTodoList;
 using Todo_App.Domain.Entities;
 
@@ -11,20 +10,19 @@ using static Testing;
 
 public class DeleteTodoListTests : BaseTestFixture
 {
-    [Test]
-    public async Task ShouldRequireValidTodoListId()
+    [TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.TodoListIdsPassingData))]
+    //[TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.TodoListIdsFailingData))]
+    public async Task ShouldRequireValidTodoListId(int id)
     {
-        var command = new DeleteTodoListCommand(99);
-        await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
+        var command = new DeleteTodoListCommand(id);
+        await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ValidationException>();
     }
 
-    [Test]
-    public async Task ShouldDeleteTodoList()
+    [TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.TodoListIdsPassingData))]
+    //[TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.TodoListIdsFailingData))]
+    public async Task ShouldDeleteTodoList(int id)
     {
-        var listId = await SendAsync(new CreateTodoListCommand
-        {
-            Title = "New List"
-        });
+        var listId = await SendAsync(new DeleteTodoListCommand(id));
 
         await SendAsync(new DeleteTodoListCommand(listId));
 

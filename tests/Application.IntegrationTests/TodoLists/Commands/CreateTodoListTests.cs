@@ -10,38 +10,41 @@ using static Testing;
 
 public class CreateTodoListTests : BaseTestFixture
 {
-    [Test]
-    public async Task ShouldRequireMinimumFields()
+    //[TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.CreateTodoListPassingData))]
+    [TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.CreateTodoListFailingData))]
+    public async Task ShouldRequireMinimumFields(string todo)
     {
         var command = new CreateTodoListCommand();
         await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ValidationException>();
     }
 
-    [Test]
-    public async Task ShouldRequireUniqueTitle()
+    [TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.CreateTodoListPassingData))]
+    //[TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.CreateTodoListFailingData))]
+    public async Task ShouldRequireUniqueTitle(string todo)
     {
         await SendAsync(new CreateTodoListCommand
         {
-            Title = "Shopping"
+            Title = todo
         });
 
         var command = new CreateTodoListCommand
         {
-            Title = "Shopping"
+            Title = todo
         };
 
         await FluentActions.Invoking(() =>
             SendAsync(command)).Should().ThrowAsync<ValidationException>();
     }
 
-    [Test]
-    public async Task ShouldCreateTodoList()
+    [TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.CreateTodoListPassingData))]
+    //[TestCaseSource(typeof(TestData.TestData), nameof(TestData.TestData.CreateTodoListFailingData))]
+    public async Task ShouldCreateTodoList(string todo)
     {
         var userId = await RunAsDefaultUserAsync();
 
         var command = new CreateTodoListCommand
         {
-            Title = "Tasks"
+            Title = todo
         };
 
         var id = await SendAsync(command);
